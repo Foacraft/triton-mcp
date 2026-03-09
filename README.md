@@ -39,6 +39,42 @@ Once connected, you can talk to the AI naturally:
 
 > List all my languages, then go through the `default` collection and make sure every entry has a translation for all of them. Fill in anything that's missing.
 
+## Connecting Claude Desktop
+
+Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "triton-mcp": {
+      "type": "http",
+      "url": "http://your-server-ip:25580/sse"
+    }
+  }
+}
+```
+
+If `authToken` is set in the plugin config:
+
+```json
+{
+  "mcpServers": {
+    "triton-mcp": {
+      "type": "http",
+      "url": "http://your-server-ip:25580/sse",
+      "headers": {
+        "Authorization": "Bearer your-token-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. The triton-mcp tools will appear in the tools list.
+
 ## Installation
 
 1. Drop the jar into your Velocity `plugins/` folder (Triton must already be installed)
