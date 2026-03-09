@@ -25,6 +25,20 @@ When using MySQL storage, calling `reload_triton` after writes will push a refre
 | `batch_upsert_items` | Create or update multiple entries in one write |
 | `reload_triton` | Reload Triton and sync all backend servers |
 
+## Example prompts
+
+Once connected, you can talk to the AI naturally:
+
+> Check which translations in the `survival` collection are missing a Chinese translation, then fill them all in.
+
+> I just added 20 new keys to my plugin. Here's the list — create them all in the `shop` collection with English and Simplified Chinese translations, then reload.
+
+> Find any translation that contains the word "error" and update the English text to be less technical.
+
+> Delete all keys under `debug.*` and reload when done.
+
+> List all my languages, then go through the `default` collection and make sure every entry has a translation for all of them. Fill in anything that's missing.
+
 ## Installation
 
 1. Drop the jar into your Velocity `plugins/` folder (Triton must already be installed)
