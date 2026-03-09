@@ -168,7 +168,7 @@ Requires the Triton v4 jars in `libs/` as compile-only dependencies (not include
 ./gradlew shadowJar
 ```
 
-Output: `build/libs/triton-mcp-1.2.0.jar`
+Output: `build/libs/triton-mcp-1.2.1.jar`
 
 ## Compatibility
 
