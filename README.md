@@ -50,7 +50,7 @@ Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
 {
   "mcpServers": {
     "triton-mcp": {
-      "type": "http",
+      "type": "sse",
       "url": "http://your-server-ip:25580/sse"
     }
   }
@@ -63,7 +63,7 @@ If `authToken` is set in the plugin config:
 {
   "mcpServers": {
     "triton-mcp": {
-      "type": "http",
+      "type": "sse",
       "url": "http://your-server-ip:25580/sse",
       "headers": {
         "Authorization": "Bearer your-token-here"
