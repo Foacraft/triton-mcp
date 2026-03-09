@@ -39,7 +39,37 @@ Once connected, you can talk to the AI naturally:
 
 > List all my languages, then go through the `default` collection and make sure every entry has a translation for all of them. Fill in anything that's missing.
 
-## Connecting to AI clients
+## Quick install (CLI)
+
+The JAR doubles as a CLI tool that writes the MCP config directly to your local Claude installations.
+
+```bash
+# Install — writes to ~/.claude.json (Claude Code) and Claude Desktop config
+java -jar triton-mcp.jar --install <ip:port>
+
+# Example
+java -jar triton-mcp.jar --install 192.168.1.10:25580
+
+# Remove triton-mcp from all Claude configs
+java -jar triton-mcp.jar --uninstall
+
+# Help
+java -jar triton-mcp.jar --help
+```
+
+Config files written automatically:
+
+| Client | Config file |
+|---|---|
+| Claude Code | `~/.claude.json` |
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+> If `authToken` is enabled, edit the config files manually to add the token after running `--install`. See the manual config sections below.
+
+---
+
+## Connecting to AI clients (manual)
 
 ### Claude Code (CLI)
 
@@ -138,7 +168,7 @@ Requires the Triton v4 jars in `libs/` as compile-only dependencies (not include
 ./gradlew shadowJar
 ```
 
-Output: `build/libs/triton-mcp-1.1.0.jar`
+Output: `build/libs/triton-mcp-1.2.0.jar`
 
 ## Compatibility
 

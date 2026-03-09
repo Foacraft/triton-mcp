@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.foacraft"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -52,6 +52,9 @@ tasks.processResources {
 
 tasks.shadowJar {
     archiveClassifier.set("")
+    manifest {
+        attributes["Main-Class"] = "com.foacraft.mcp.triton.cli.CliInstallerKt"
+    }
     // Relocate all bundled deps to avoid conflicts with other Velocity plugins
     relocate("io.ktor",                     "com.foacraft.mcp.triton.shadow.ktor")
     relocate("io.github.oshai",             "com.foacraft.mcp.triton.shadow.oshai")
