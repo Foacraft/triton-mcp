@@ -10,8 +10,11 @@
 
 **Collection（集合）**
 翻译条目的分组容器，类似文件夹。每个条目必须归属于某个集合。
-- 默认集合名为 `default`
-- 建议按插件名建集合，例如 `essentials`、`shop`、`survival`
+
+集合命名原则：
+- **一个插件对应一个集合**，集合名即插件名小写（如 `essentials`、`shop`、`survival`）
+- **公共/跨插件消息**（如服务器全局提示、通用权限提示）归入 `default` 集合
+- 同一插件的所有消息不论来自哪个配置文件，统一放进该插件的集合，**不要**按配置文件拆分集合
 
 **Translation Item（翻译条目）**
 单条翻译，分两种类型：
@@ -153,31 +156,89 @@ confirm, cancel, accept, decline, reject
 
 ## 四、Key 命名规范
 
+### 基本格式
+
 ```
-{插件名}.{yaml路径}.{字段名}
+<插件名小写>.<使用场景>.<避免冲突的后续节点>
 ```
 
-- 插件名小写，去掉版本号
-- YAML 嵌套路径用 `.` 连接
-- 空格替换为 `_`，大写转小写
+**三段的含义：**
 
-**示例**
+| 段 | 说明 | 示例 |
+|---|---|---|
+| `<插件名小写>` | 插件英文名全小写，去掉版本号和特殊符号 | `essentials`, `cmi`, `shop` |
+| `<使用场景>` | 消息的功能/展示场景，**不一定是 YAML 路径**，见下文 | `chat`, `title`, `actionbar`, `gui`, `command` |
+| `<后续节点>` | 在场景内区分具体条目，避免 key 冲突 | `no_permission`, `pay_self`, `join` |
+
+### 使用场景（第二段）的判断
+
+Key 的第二段应反映消息**实际被用于何处**，而非仅仅照抄 YAML 路径。常见场景及建议写法：
+
+| 实际用途 | 场景段建议 | 示例 key |
+|---|---|---|
+| 普通聊天/系统提示消息 | `msg` 或按 YAML 路径 | `shop.msg.no_permission` |
+| 标题（Title） | `title` | `lobby.title.welcome` |
+| 副标题（Subtitle） | `subtitle` | `lobby.subtitle.welcome` |
+| 动作栏（Actionbar） | `actionbar` | `pvp.actionbar.kill_streak` |
+| GUI/菜单按钮文字 | `gui` | `shop.gui.buy_button` |
+| 物品展示名/Lore | `item` | `kit.item.sword_name` |
+| 踢出/封禁消息 | `kick` 或 `ban` | `admin.kick.default_reason` |
+| 任务/成就提示 | `quest` / `achievement` | `quest.achievement.first_kill` |
+| 插件前缀 | `prefix` | `essentials.prefix` |
+| Boss 血条文字 | `bossbar` | `dungeon.bossbar.phase1` |
+| 计分板文字 | `scoreboard` | `survival.scoreboard.balance` |
+
+**特殊情况：当 YAML 路径已经很清晰时**，可直接将路径作为场景+后续节点，但仍需在前加插件名：
 
 ```yaml
-# CMI plugin config
+# 原 YAML
 info:
-  NoPermission: "&cYou don't have permission!"
-  Ingame: "&cYou can only use this in game!"
+  NoPermission: "..."
+  Ingame: "..."
 ```
-→ Key：`cmi.info.no_permission`、`cmi.info.ingame`
+→ `cmi.info.no_permission`、`cmi.info.ingame`（路径即场景，无歧义，直接用）
+
+**当 YAML 路径语义模糊或会冲突时**，改用场景语义命名：
+
+```yaml
+# 插件 A 和插件 B 都有 messages.error，直接用路径会让 key 含义不清
+# 改用场景描述
+pluginA.msg.error_generic
+pluginB.msg.error_generic
+# 而非
+pluginA.messages.error  ← 勉强可以
+```
+
+### 其他格式规则
+
+- 全部小写
+- 空格、连字符 `-` 统一替换为 `_`
+- 不使用驼峰，一律下划线
+- 节点层级不超过 4 层（避免 key 过长被 Triton 截断）
+
+### 示例对照
 
 ```yaml
 # EssentialsX messages.yml
 essentials:
   economy:
     pay-self: "&cYou can't pay yourself."
+pay-broadcast: "&e{0} paid &e{1} &e${2}."
 ```
-→ Key：`essentials.economy.pay_self`
+→ `essentials.economy.pay_self`、`essentials.economy.pay_broadcast`
+
+```yaml
+# 某 PvP 插件，同时有聊天消息和 Title
+pvp:
+  messages:
+    kill: "&a你击杀了 {victim}！"
+  titles:
+    kill:
+      title: "&c你被 {killer} 击杀"
+      subtitle: "&7再接再厉"
+```
+→ `pvp.msg.kill`（聊天）、`pvp.title.kill`（标题）、`pvp.subtitle.kill`（副标题）
+（注意：尽管 YAML 路径都含 `kill`，通过场景段加以区分，避免合并到同一 key）
 
 ---
 
