@@ -39,7 +39,40 @@ Once connected, you can talk to the AI naturally:
 
 > List all my languages, then go through the `default` collection and make sure every entry has a translation for all of them. Fill in anything that's missing.
 
-## Connecting Claude Desktop
+## Connecting to AI clients
+
+### Claude Code (CLI)
+
+Claude Code supports Streamable HTTP MCP servers natively. Edit `~/.claude.json` and add an entry under `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "triton-mcp": {
+      "type": "http",
+      "url": "http://your-server-ip:25580/mcp"
+    }
+  }
+}
+```
+
+If `authToken` is set, add a `headers` field:
+
+```json
+{
+  "mcpServers": {
+    "triton-mcp": {
+      "type": "http",
+      "url": "http://your-server-ip:25580/mcp",
+      "headers": {
+        "Authorization": "Bearer your-token-here"
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop
 
 Claude Desktop only supports stdio-based MCP servers natively. Use [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) as a proxy (requires Node.js / npx).
 
@@ -53,20 +86,22 @@ Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
   "mcpServers": {
     "triton-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp"]
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp", "--allow-http"]
     }
   }
 }
 ```
 
-If `authToken` is set in the plugin config, append the token as a third argument:
+> **Note:** `--allow-http` is required when the server URL is not HTTPS and not localhost. Without it, `mcp-remote` will refuse to connect.
+
+If `authToken` is set, append the header argument:
 
 ```json
 {
   "mcpServers": {
     "triton-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp", "--header", "Authorization: Bearer your-token-here"]
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp", "--allow-http", "--header", "Authorization: Bearer your-token-here"]
     }
   }
 }
@@ -103,7 +138,7 @@ Requires the Triton v4 jars in `libs/` as compile-only dependencies (not include
 ./gradlew shadowJar
 ```
 
-Output: `build/libs/triton-mcp-1.0.0.jar`
+Output: `build/libs/triton-mcp-1.1.0.jar`
 
 ## Compatibility
 
