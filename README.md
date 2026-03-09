@@ -41,6 +41,8 @@ Once connected, you can talk to the AI naturally:
 
 ## Connecting Claude Desktop
 
+Claude Desktop only supports stdio-based MCP servers natively. Use [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) as a proxy (requires Node.js / npx).
+
 Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
 
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -50,22 +52,21 @@ Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
 {
   "mcpServers": {
     "triton-mcp": {
-      "url": "http://your-server-ip:25580/sse"
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/sse"]
     }
   }
 }
 ```
 
-If `authToken` is set in the plugin config:
+If `authToken` is set in the plugin config, append the token as a third argument:
 
 ```json
 {
   "mcpServers": {
     "triton-mcp": {
-      "url": "http://your-server-ip:25580/sse",
-      "headers": {
-        "Authorization": "Bearer your-token-here"
-      }
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/sse", "--header", "Authorization: Bearer your-token-here"]
     }
   }
 }
