@@ -177,8 +177,7 @@ Key 的第二段应反映消息**实际被用于何处**，而非仅仅照抄 YA
 | 实际用途 | 场景段建议 | 示例 key |
 |---|---|---|
 | 普通聊天/系统提示消息 | `msg` 或按 YAML 路径 | `shop.msg.no_permission` |
-| 标题（Title） | `title` | `lobby.title.welcome` |
-| 副标题（Subtitle） | `subtitle` | `lobby.subtitle.welcome` |
+| 标题+副标题（Title/Subtitle） | `title` | `lobby.title.welcome`、`lobby.title.welcome_sub` |
 | 动作栏（Actionbar） | `actionbar` | `pvp.actionbar.kill_streak` |
 | GUI/菜单按钮文字 | `gui` | `shop.gui.buy_button` |
 | 物品展示名/Lore | `item` | `kit.item.sword_name` |
@@ -237,8 +236,8 @@ pvp:
       title: "&c你被 {killer} 击杀"
       subtitle: "&7再接再厉"
 ```
-→ `pvp.msg.kill`（聊天）、`pvp.title.kill`（标题）、`pvp.subtitle.kill`（副标题）
-（注意：尽管 YAML 路径都含 `kill`，通过场景段加以区分，避免合并到同一 key）
+→ `pvp.msg.kill`（聊天）、`pvp.title.kill`（标题）、`pvp.title.kill_sub`（副标题）
+（Title 和 Subtitle 同属 `title` 场景，用后缀 `_sub` 区分，而非独立为 `subtitle` 场景段）
 
 ---
 
