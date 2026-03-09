@@ -22,103 +22,36 @@ Check logs: `cat /tmp/velocity.log | grep -i "triton\|mcp\|error"`
 
 Kill all instances before restarting: `pkill -f "velocity-3.4.0"`
 
-## MCP Testing (Python)
+## MCP Testing (curl)
 
-The MCP server uses HTTP+SSE with chunked transfer encoding. Use this script to test all tools:
+The MCP server uses **Streamable HTTP** transport (POST to `/mcp`). Test with curl:
 
-```python
-import socket, json, threading, queue, time
+```bash
+# Step 1: Initialize — captures the mcp-session-id
+SESSION=$(curl -s -D - http://localhost:25580/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}' \
+  | grep -i "mcp-session-id" | awk '{print $2}' | tr -d '\r')
 
-HOST = 'localhost'
-PORT = 25580
-q = queue.Queue()
+# Step 2: Send initialized notification
+curl -s -o /dev/null http://localhost:25580/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "mcp-session-id: $SESSION" \
+  -d '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}'
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((HOST, PORT))
-sock.settimeout(60)
-sock.sendall(b'GET /sse HTTP/1.1\r\nHost: localhost:25580\r\nAccept: text/event-stream\r\nConnection: keep-alive\r\n\r\n')
-
-def recv_line(s):
-    buf = b''
-    while True:
-        c = s.recv(1)
-        if not c:
-            return buf
-        buf += c
-        if buf.endswith(b'\r\n'):
-            return buf[:-2]
-
-def read_chunk(s):
-    size_str = recv_line(s).strip().decode()
-    if not size_str:
-        return b''
-    size = int(size_str, 16)
-    if size == 0:
-        return b''
-    data = b''
-    while len(data) < size:
-        data += s.recv(size - len(data))
-    recv_line(s)
-    return data
-
-# Skip HTTP headers
-while True:
-    line = recv_line(sock)
-    if not line:
-        break
-
-# Parse session endpoint
-chunk = read_chunk(sock)
-msg_path = None
-for line in chunk.decode().split('\n'):
-    if line.startswith('data:') and 'sessionId' in line:
-        msg_path = line[5:].strip()
-
-def sse_reader():
-    while True:
-        try:
-            chunk = read_chunk(sock)
-            if not chunk or chunk.startswith(b':'):
-                continue
-            for line in chunk.decode().split('\n'):
-                if line.startswith('data:'):
-                    data = line[5:].strip()
-                    if data.startswith('{'):
-                        q.put(json.loads(data))
-        except:
-            break
-
-t = threading.Thread(target=sse_reader, daemon=True)
-t.start()
-time.sleep(0.3)
-
-def rpc(method, params, rid):
-    body = json.dumps({'jsonrpc': '2.0', 'id': rid, 'method': method, 'params': params})
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-    s.settimeout(10)
-    req = f'POST {msg_path} HTTP/1.1\r\nHost: localhost:{PORT}\r\nContent-Type: application/json\r\nContent-Length: {len(body)}\r\nConnection: close\r\n\r\n{body}'
-    s.sendall(req.encode())
-    while True:
-        try:
-            if not s.recv(4096): break
-        except: break
-    s.close()
-    return q.get(timeout=8)
-
-# Initialize
-rpc('initialize', {'protocolVersion': '2024-11-05', 'capabilities': {}, 'clientInfo': {'name': 'test', 'version': '1'}}, 0)
-print("Initialized OK")
-
-# Call a tool
-r = rpc('tools/call', {'name': 'list_languages', 'arguments': {}}, 1)
-content = r.get('result', {}).get('content', [{}])[0].get('text', '')
-is_err = r.get('result', {}).get('isError', False)
-print(f"{'ERR' if is_err else 'OK'}: {content[:200]}")
+# Step 3: Call tools (use mcp-session-id header for all subsequent calls)
+curl -s http://localhost:25580/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "mcp-session-id: $SESSION" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_languages","arguments":{}}}'
 ```
 
 ### Key Notes
-- SSE response uses `Transfer-Encoding: chunked` — must decode chunks manually (byte-by-byte `recv_line` + `read_chunk`)
-- MCP responses arrive on the SSE stream, **not** on the POST response (POST returns `202 Accepted`)
-- Must call `initialize` before any `tools/call`
-- Wait `0.3s` after starting SSE reader thread before sending first request
+- Transport: **Streamable HTTP** — POST to `/mcp`, responses are direct JSON (not SSE stream)
+- Must send `Accept: application/json, text/event-stream` (both required by spec)
+- First POST (initialize) returns `mcp-session-id` header — include in all subsequent requests
+- `notifications/initialized` returns `202 Accepted` with empty body
+- Tool calls return `200 OK` with JSON-RPC response body

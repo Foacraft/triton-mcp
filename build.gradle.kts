@@ -21,12 +21,14 @@ dependencies {
     compileOnly(files("libs/triton-api.jar"))
     compileOnly(files("libs/triton-core.jar"))
 
-    // MCP Kotlin SDK (SSE transport)
-    implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+    // MCP Kotlin SDK (Streamable HTTP transport)
+    implementation("io.modelcontextprotocol:kotlin-sdk:0.9.0")
 
-    // Ktor CIO engine + SSE (not bundled transitively by kotlin-sdk)
-    implementation("io.ktor:ktor-server-cio:3.0.2")
-    implementation("io.ktor:ktor-server-sse:3.0.2")
+    // Ktor CIO engine + SSE + Content Negotiation (required by Streamable HTTP transport)
+    implementation("io.ktor:ktor-server-cio:3.2.3")
+    implementation("io.ktor:ktor-server-sse:3.2.3")
+    implementation("io.ktor:ktor-server-content-negotiation:3.2.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.2.3")
 
     // YAML config
     implementation("com.charleskorn.kaml:kaml:0.65.0")
@@ -52,6 +54,7 @@ tasks.shadowJar {
     archiveClassifier.set("")
     // Relocate all bundled deps to avoid conflicts with other Velocity plugins
     relocate("io.ktor",                     "com.foacraft.mcp.triton.shadow.ktor")
+    relocate("io.github.oshai",             "com.foacraft.mcp.triton.shadow.oshai")
     relocate("io.modelcontextprotocol",     "com.foacraft.mcp.triton.shadow.mcp")
     relocate("com.charleskorn.kaml",        "com.foacraft.mcp.triton.shadow.kaml")
     relocate("kotlinx.serialization",       "com.foacraft.mcp.triton.shadow.serialization")

@@ -6,15 +6,18 @@ import com.foacraft.mcp.triton.mcp.tools.registerItemReadTools
 import com.foacraft.mcp.triton.mcp.tools.registerItemWriteTools
 import com.foacraft.mcp.triton.mcp.tools.registerLanguageTools
 import com.foacraft.mcp.triton.triton.TritonBridge
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
-import io.modelcontextprotocol.kotlin.sdk.Implementation
-import io.modelcontextprotocol.kotlin.sdk.ServerCapabilities
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.McpJson
+import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
-import io.modelcontextprotocol.kotlin.sdk.server.mcp
+import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import org.slf4j.Logger
 import java.net.BindException
 
@@ -28,12 +31,15 @@ class McpServer(
     fun start() {
         try {
             engine = embeddedServer(CIO, host = config.host, port = config.port) {
+                install(ContentNegotiation) {
+                    json(McpJson)
+                }
                 if (config.authToken != null) {
                     install(AuthTokenPlugin) {
                         token = config.authToken
                     }
                 }
-                mcp {
+                mcpStreamableHttp(path = "/mcp") {
                     buildMcpServer()
                 }
             }.start(wait = false)

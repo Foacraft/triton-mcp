@@ -1,13 +1,13 @@
 package com.foacraft.mcp.triton.util
 
-import io.modelcontextprotocol.kotlin.sdk.Tool
+import io.modelcontextprotocol.kotlin.sdk.types.ToolSchema
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 
-fun buildToolInput(block: SchemaBuilder.() -> Unit): Tool.Input {
+fun buildToolInput(block: SchemaBuilder.() -> Unit): ToolSchema {
     val builder = SchemaBuilder()
     builder.block()
     return builder.build()
@@ -81,16 +81,14 @@ class SchemaBuilder {
         if (required) this.required.add(name)
     }
 
-    fun build(): Tool.Input {
-        val schema = buildJsonObject {
-            put("type", "object")
-            putJsonObject("properties") {
-                for ((k, v) in properties) put(k, v)
-            }
-            putJsonArray("required") {
-                required.forEach { add(kotlinx.serialization.json.JsonPrimitive(it)) }
-            }
+    fun build(): ToolSchema {
+        val propertiesJson = buildJsonObject {
+            for ((k, v) in properties) put(k, v)
         }
-        return Tool.Input(schema)
+        return ToolSchema(
+            properties = propertiesJson,
+            required = required.ifEmpty { null },
+            defs = null
+        )
     }
 }

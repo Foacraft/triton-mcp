@@ -2,9 +2,9 @@ package com.foacraft.mcp.triton.mcp.tools
 
 import com.foacraft.mcp.triton.triton.TritonBridge
 import com.foacraft.mcp.triton.util.buildToolInput
-import io.modelcontextprotocol.kotlin.sdk.CallToolResult
-import io.modelcontextprotocol.kotlin.sdk.TextContent
 import io.modelcontextprotocol.kotlin.sdk.server.Server
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -32,20 +32,20 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
         }
     ) { request ->
         val args = request.arguments ?: return@addTool CallToolResult(
-            isError = true, content = listOf(TextContent("No parameters provided"))
+            isError = true, content = listOf(TextContent(text = "No parameters provided"))
         )
 
         val key = args["key"]?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: key")))
         val collection = args["collection"]?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: collection")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: collection")))
         val translations = args["translations"]?.jsonObject?.let { parseStringMap(it) }
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: translations")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: translations")))
 
         if (bridge.findItemByKey(key) != null) {
             return@addTool CallToolResult(
                 isError = true,
-                content = listOf(TextContent("Item '$key' already exists. Use update_item_translations to modify it."))
+                content = listOf(TextContent(text = "Item '$key' already exists. Use update_item_translations to modify it."))
             )
         }
 
@@ -53,7 +53,7 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
         val blacklist = args["blacklist"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
 
         bridge.upsertTextItem(collection, key, translations, servers, blacklist)
-        CallToolResult(content = listOf(TextContent("Created item '$key' in collection '$collection'.")))
+        CallToolResult(content = listOf(TextContent(text = "Created item '$key' in collection '$collection'.")))
     }
 
     addTool(
@@ -67,26 +67,26 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
         }
     ) { request ->
         val args = request.arguments ?: return@addTool CallToolResult(
-            isError = true, content = listOf(TextContent("No parameters provided"))
+            isError = true, content = listOf(TextContent(text = "No parameters provided"))
         )
 
         val key = args["key"]?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: key")))
         val translations = args["translations"]?.jsonObject?.let { parseStringMap(it) }
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: translations")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: translations")))
 
         val existing = bridge.findItemByKey(key)
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Item not found: $key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Item not found: $key")))
         if (existing.type != "text") {
             return@addTool CallToolResult(
                 isError = true,
-                content = listOf(TextContent("Item '$key' is of type '${existing.type}'. Only text items can be updated with this tool."))
+                content = listOf(TextContent(text = "Item '$key' is of type '${existing.type}'. Only text items can be updated with this tool."))
             )
         }
 
         bridge.upsertTextItem(existing.collection, key, translations)
         val updatedLangs = translations.keys.joinToString(", ")
-        CallToolResult(content = listOf(TextContent("Updated '$key' — languages written: $updatedLangs.")))
+        CallToolResult(content = listOf(TextContent(text = "Updated '$key' — languages written: $updatedLangs.")))
     }
 
     addTool(
@@ -97,13 +97,13 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
         }
     ) { request ->
         val key = request.arguments?.get("key")?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: key")))
 
         val deleted = bridge.deleteItem(key)
         if (deleted) {
-            CallToolResult(content = listOf(TextContent("Deleted item '$key'.")))
+            CallToolResult(content = listOf(TextContent(text = "Deleted item '$key'.")))
         } else {
-            CallToolResult(isError = true, content = listOf(TextContent("Item not found: $key")))
+            CallToolResult(isError = true, content = listOf(TextContent(text = "Item not found: $key")))
         }
     }
 
@@ -122,13 +122,13 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
         }
     ) { request ->
         val args = request.arguments ?: return@addTool CallToolResult(
-            isError = true, content = listOf(TextContent("No parameters provided"))
+            isError = true, content = listOf(TextContent(text = "No parameters provided"))
         )
 
         val collection = args["collection"]?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: collection")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: collection")))
         val rawItems = args["items"]?.jsonArray
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: items")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: items")))
 
         val itemList = rawItems.map { element ->
             val obj = element.jsonObject
@@ -145,7 +145,7 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
             put("total", result.created + result.updated)
             putJsonArray("errors") { result.errors.forEach { add(JsonPrimitive(it)) } }
         }
-        CallToolResult(content = listOf(TextContent(json.toString())))
+        CallToolResult(content = listOf(TextContent(text = json.toString())))
     }
 
     addTool(
@@ -156,9 +156,9 @@ fun Server.registerItemWriteTools(bridge: TritonBridge) {
     ) { _ ->
         try {
             bridge.reloadTriton()
-            CallToolResult(content = listOf(TextContent("Triton reloaded successfully. All translation changes are now live.")))
+            CallToolResult(content = listOf(TextContent(text = "Triton reloaded successfully. All translation changes are now live.")))
         } catch (e: Exception) {
-            CallToolResult(isError = true, content = listOf(TextContent("Triton reload failed: ${e.message}")))
+            CallToolResult(isError = true, content = listOf(TextContent(text = "Triton reload failed: ${e.message}")))
         }
     }
 }

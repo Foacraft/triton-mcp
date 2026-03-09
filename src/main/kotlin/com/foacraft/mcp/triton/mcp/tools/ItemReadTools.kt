@@ -2,9 +2,9 @@ package com.foacraft.mcp.triton.mcp.tools
 
 import com.foacraft.mcp.triton.triton.TritonBridge
 import com.foacraft.mcp.triton.util.buildToolInput
-import io.modelcontextprotocol.kotlin.sdk.CallToolResult
-import io.modelcontextprotocol.kotlin.sdk.TextContent
 import io.modelcontextprotocol.kotlin.sdk.server.Server
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
@@ -21,12 +21,12 @@ fun Server.registerItemReadTools(bridge: TritonBridge) {
         }
     ) { request ->
         val key = request.arguments?.get("key")?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: key")))
 
         val item = bridge.findItemByKey(key)
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Item not found: $key")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Item not found: $key")))
 
-        CallToolResult(content = listOf(TextContent(itemSummaryToJson(item).toString())))
+        CallToolResult(content = listOf(TextContent(text = itemSummaryToJson(item).toString())))
     }
 
     addTool(
@@ -61,6 +61,6 @@ fun Server.registerItemReadTools(bridge: TritonBridge) {
                 results.forEach { add(itemSummaryToJson(it)) }
             })
         }
-        CallToolResult(content = listOf(TextContent(json.toString())))
+        CallToolResult(content = listOf(TextContent(text = json.toString())))
     }
 }

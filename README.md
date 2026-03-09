@@ -6,7 +6,7 @@ Requires Triton v4 on Velocity with either local or MySQL storage.
 
 ## What it does
 
-Exposes Triton's translation data over HTTP+SSE as MCP tools. An AI assistant can list languages, search for missing translations, batch-create entries, and trigger a reload — all without touching config files or the TWIN web UI.
+Exposes Triton's translation data over **Streamable HTTP** (POST `/mcp`) as MCP tools. An AI assistant can list languages, search for missing translations, batch-create entries, and trigger a reload — all without touching config files or the TWIN web UI.
 
 When using MySQL storage, calling `reload_triton` after writes will push a refresh signal to all connected Paper backend servers, same as a normal Triton reload.
 
@@ -53,7 +53,7 @@ Edit `claude_desktop_config.json` and add an entry under `mcpServers`:
   "mcpServers": {
     "triton-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/sse"]
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp"]
     }
   }
 }
@@ -66,7 +66,7 @@ If `authToken` is set in the plugin config, append the token as a third argument
   "mcpServers": {
     "triton-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/sse", "--header", "Authorization: Bearer your-token-here"]
+      "args": ["-y", "mcp-remote", "http://your-server-ip:25580/mcp", "--header", "Authorization: Bearer your-token-here"]
     }
   }
 }
@@ -78,7 +78,7 @@ Restart Claude Desktop after saving. The triton-mcp tools will appear in the too
 
 1. Drop the jar into your Velocity `plugins/` folder (Triton must already be installed)
 2. Start the server — a default `config.yml` is generated under `plugins/triton-mcp/`
-3. Point your MCP client at `http://<host>:25580/sse`
+3. Point your MCP client at `http://<host>:25580/mcp`
 
 ## Configuration
 

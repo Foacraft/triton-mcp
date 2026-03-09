@@ -2,9 +2,9 @@ package com.foacraft.mcp.triton.mcp.tools
 
 import com.foacraft.mcp.triton.triton.TritonBridge
 import com.foacraft.mcp.triton.util.buildToolInput
-import io.modelcontextprotocol.kotlin.sdk.CallToolResult
-import io.modelcontextprotocol.kotlin.sdk.TextContent
 import io.modelcontextprotocol.kotlin.sdk.server.Server
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -34,7 +34,7 @@ fun Server.registerCollectionTools(bridge: TritonBridge) {
                 })
             }
         }
-        CallToolResult(content = listOf(TextContent(json.toString())))
+        CallToolResult(content = listOf(TextContent(text = json.toString())))
     }
 
     addTool(
@@ -48,18 +48,18 @@ fun Server.registerCollectionTools(bridge: TritonBridge) {
         }
     ) { request ->
         val args = request.arguments ?: return@addTool CallToolResult(
-            isError = true, content = listOf(TextContent("No parameters provided"))
+            isError = true, content = listOf(TextContent(text = "No parameters provided"))
         )
 
         val collectionName = args["collection"]?.jsonPrimitive?.content
-            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent("Missing required parameter: collection")))
+            ?: return@addTool CallToolResult(isError = true, content = listOf(TextContent(text = "Missing required parameter: collection")))
         val typeFilter = args["type"]?.jsonPrimitive?.content?.takeIf { it.isNotBlank() }
 
         val items = bridge.getCollectionItems(collectionName, typeFilter)
         val json = buildJsonArray {
             for (item in items) add(itemSummaryToJson(item))
         }
-        CallToolResult(content = listOf(TextContent(json.toString())))
+        CallToolResult(content = listOf(TextContent(text = json.toString())))
     }
 }
 
