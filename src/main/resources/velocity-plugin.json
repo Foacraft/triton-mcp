@@ -1,0 +1,14 @@
+{
+  "id": "triton-mcp",
+  "name": "Triton MCP",
+  "version": "${version}",
+  "main": "com.foacraft.mcp.triton.TritonMcpPlugin",
+  "description": "MCP server for managing Triton translations via AI clients",
+  "authors": ["foacraft"],
+  "dependencies": [
+    {
+      "id": "triton",
+      "optional": false
+    }
+  ]
+}

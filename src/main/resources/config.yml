@@ -1,0 +1,16 @@
+# Triton MCP Server Configuration
+
+# TCP port for the MCP SSE server
+port: 25580
+
+# Bind address (0.0.0.0 = all interfaces, 127.0.0.1 = localhost only)
+host: "0.0.0.0"
+
+# Optional bearer token for authentication.
+# If set, MCP clients must send: Authorization: Bearer <token>
+# Leave null to disable authentication (not recommended for public servers).
+authToken: null
+
+# Displayed in MCP server info
+serverName: "triton-mcp"
+serverVersion: "1.0.0"
